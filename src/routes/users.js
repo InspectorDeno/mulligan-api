@@ -14,4 +14,13 @@ router.post("/", (req, res) => {
     .catch(err => res.status(400).json({ errors: parseErrors(err.errors) }));
 });
 
+router.post("/sethcp", (req, res) => {
+  const { hcp } = req.body.user;
+  const user = req.body.user;
+  user.setHCP(hcp);
+  user.save()
+  .then(() => res.json({ success: true}))
+  .catch(err => res.status(400).json({ errors: parseErrors(err.errors) }))
+})
+
 export default router;

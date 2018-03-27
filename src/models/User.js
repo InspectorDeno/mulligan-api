@@ -15,6 +15,7 @@ const schema = new mongoose.Schema(
       unique: true
     },
     passwordHash: { type: String, required: true },
+    hcp: {type: Float32Array, required: false},
     confirmed: { type: Boolean, default: false }
   },
   { timestamps: true }
@@ -38,6 +39,10 @@ schema.methods.toAuthJSON = function toAuthJSON() {
     token: this.generateJWT()
   };
 };
+
+schema.methods.setHCP = function setHCP(hcp) {
+  this.hcp = hcp;
+}
 
 // Generates the JSON web token with secretkey for encryption
 schema.methods.generateJWT = function generateJWT() {
