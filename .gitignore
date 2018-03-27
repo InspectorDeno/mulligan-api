@@ -1,3 +1,18 @@
+# Dependencies
 node_modules
+
+# Compiled output
+build
+
+# Logs
+yarn-error.log*
+yarn-debug.log*
+npmm-debug.log*
+
+# Editors and IDEs
+.idea
+.vscode/*
+!.vscode/settings.json
+
+# Misc
 .DS_Store
-yarn-error.log
