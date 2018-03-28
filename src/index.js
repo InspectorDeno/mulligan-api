@@ -16,9 +16,8 @@ mongoose.connect(process.env.MONGODB_URL);
 
 app.use("/api/auth", auth);
 app.use("/api/users", users);
-
 app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.listen(8181, () => console.log("Running on localhost:8181"));
+app.listen(8080, () => console.log("Running on localhost:8080"));

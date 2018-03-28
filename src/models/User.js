@@ -15,14 +15,24 @@ const schema = new mongoose.Schema(
       unique: true
     },
     passwordHash: { type: String, required: true },
-    hcp: {type: Float32Array, required: false},
-    confirmed: { type: Boolean, default: false }
+    hcp: { type: String, required: false },
+    confirmed: { type: Boolean, default: false },
+    confirmationToken: { type: String, default: "" }
   },
   { timestamps: true }
 );
 
 schema.methods.isValidPassword = function isValidPassword(password) {
   return bcrypt.compareSync(password, this.passwordHash);
+};
+
+// Method for generating a confirmation token
+schema.methods.setConfirmationToken = function setConfirmationToken() {
+  this.confirmationToken = this.generateJWT();
+};
+
+schema.methods.generateConfirmationUrl = function generateConfirmationUrl() {
+  return `${process.env.HOST}/confirmation/${this.confirmationToken}`;
 };
 
 // Method for encrypting pasword
@@ -40,15 +50,36 @@ schema.methods.toAuthJSON = function toAuthJSON() {
   };
 };
 
+// This generates the link to attach in the email
+schema.methods.generateResetPasswordLink = function generateResetPasswordLink() {
+  return `${
+    process.env.HOST
+  }/reset_password/${this.generateResetPasswordToken()}`;
+};
+
+// Not so secure method to generate a reset password token that lasts for like, an hour
+schema.methods.generateResetPasswordToken = function generateResetPasswordToken() {
+  return jwt.sign(
+    {
+      _id: this._id
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h"
+    }
+  );
+};
+
 schema.methods.setHCP = function setHCP(hcp) {
   this.hcp = hcp;
-}
+};
 
 // Generates the JSON web token with secretkey for encryption
 schema.methods.generateJWT = function generateJWT() {
   return jwt.sign(
     {
-      email: this.email
+      email: this.email,
+      confirmed: this.confirmed
     },
     process.env.JWT_SECRET
   );
