@@ -30,6 +30,8 @@
     "mongoose": "^5.0.11",
     "mongoose-unique-validator": "^2.0.0",
     "nodemailer": "^4.6.3",
+    "react-datetime": "^2.14.0",
+    "request-promise": "^4.2.2",
     "yarn": "^1.5.1"
   }
 }
