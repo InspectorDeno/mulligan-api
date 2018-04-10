@@ -7,14 +7,13 @@ const router = express.Router();
 // router.use(authenticate);
 
 router.get("/", (req, res) => {
-  console.log("got request to /weather/");
-  res.json({});
-});
-
-router.get("/search", (req, res) => {
   // TODO: Get lon and lat from user
   request
-    .get(`${process.env.SMHI_API}/category/pmp3g/version/2/geotype/point/lon/15.62157/lat/58.41086/data.json`)
+    .get(
+      `${
+        process.env.SMHI_API
+      }/category/pmp3g/version/2/geotype/point/lon/15.62157/lat/58.41086/data.json`
+    )
     .then(result => {
       const data = JSON.parse(result);
       res.json({
