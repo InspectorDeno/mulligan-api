@@ -15,7 +15,7 @@ const schema = new mongoose.Schema(
       unique: true
     },
     passwordHash: { type: String, required: true },
-    hcp: { type: Number, required: true, default: "40.0" },
+    hcp: { type: Number, required: true, default: "36.0" },
     confirmed: { type: Boolean, default: false },
     confirmationToken: { type: String, default: "" }
   },
