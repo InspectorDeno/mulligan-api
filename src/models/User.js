@@ -17,7 +17,8 @@ const schema = new mongoose.Schema(
     passwordHash: { type: String, required: true },
     hcp: { type: Number, required: true, default: "36.0" },
     confirmed: { type: Boolean, default: false },
-    confirmationToken: { type: String, default: "" }
+    confirmationToken: { type: String, default: "" },
+    friends: [{ id: mongoose.Schema.Types.ObjectId }]
   },
   { timestamps: true }
 );
