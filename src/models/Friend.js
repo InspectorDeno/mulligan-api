@@ -23,3 +23,7 @@ schema.methods.addFriend = function addFriend(requesting, requested) {
   this.requesting = requesting;
   this.requested = requested;
 };
+
+schema.methods.setAccept = function setAccept() {
+  this.accepted = true;
+};

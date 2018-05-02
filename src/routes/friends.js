@@ -10,17 +10,6 @@ router.post("/", (req, res) => {
   res.json(email);
 });
 
-router.post("/find", (req, res) => {
-  const { hcp } = req.body.user;
-
-  const user = req.body.user;
-  user.setHCP(hcp);
-  user
-    .save()
-    .then(() => res.json({ success: true }))
-    .catch(err => res.status(400).json({ errors: parseErrors(err.errors) }));
-});
-
 router.post("/add", (req, res) => {
   const { user } = req.body;
   const { friend } = req.body;
@@ -39,6 +28,38 @@ router.post("/add", (req, res) => {
       });
     }
   });
+});
+
+router.post("/respond", (req, res) => {
+  const { user, friend, response } = req.body;
+  Friend.findOne({ requesting: friend }, { requested: user }).then(
+    friendship => {
+      User.findOne({ email: friend.email }).then(theFriend => {
+        if (theFriend) {
+          User.findOne({ email: user.email }).then(theUser => {
+            if (theUser) {
+              if (response) {
+                theUser.addFriend(theFriend);
+                theFriend.addFriend(theUser);
+                friendship.setAccept();
+                res.json({ data: "Friendship approved" });
+              } else {
+                // Declined
+                Friend.findOneAndRemove({ _id: friendship._id });
+                res.json({ data: "Friendship declined" });
+              }
+            } else {
+              // No user
+              res.status(400).json({ error: "No such user" });
+            }
+          });
+        } else {
+          // No friend
+          res.status(400).json({ error: "No such friend" });
+        }
+      });
+    }
+  );
 });
 
 export default router;

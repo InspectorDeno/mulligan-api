@@ -86,6 +86,11 @@ schema.methods.generateJWT = function generateJWT() {
   );
 };
 
+schema.methods.addFriend = function addFriend(friend) {
+  const theFriend = { _id: friend._id };
+  this.friends.push(theFriend);
+};
+
 schema.plugin(uniqueValidator, {
   message: "There is already an account with this email"
 });
