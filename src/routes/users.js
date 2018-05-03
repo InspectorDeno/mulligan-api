@@ -29,23 +29,39 @@ router.post("/sethcp", (req, res) => {
     .catch(err => res.status(400).json({ errors: parseErrors(err.errors) }));
 });
 
-router.post("/getFriends", (req, res) => {
-  const { user } = req.body.user;
-  user.find({ email: user }).then(theUser => {
+router.post("/find", (req, res) => {
+  const { user } = req.body;
+  User.findOne({ email: user.email }).then(theUser => {
     if (theUser) {
-      const response = {};
-      theUser.friends.array.forEach(f => {
-        User.findById({ _id: f.id }).then(friend => response.add(friend));
-      });
-      console.log("repsons e is..,");
-      console.log(response);
-      if (response.length > 0) {
-        res.json({ friendData: { data: response } });
-      } else {
-        res.json({ friendData: { message: "You have no friends" } });
+      res.json({ userData: theUser });
+    } else {
+      res.status(400).json({ errors: { find_user: "No such user" } });
+    }
+  });
+});
+
+router.post("/get_friends", (req, res) => {
+  const { user } = req.body;
+
+  User.findOne({ email: user.email }).then(theUser => {
+    if (theUser) {
+      if (theUser.friends) {
+        const response = {};
+
+        theUser.friends.forEach(f => {
+          User.findById({ _id: f.id }).then(friend => response.add(friend));
+        });
+        if (response.length > 0) {
+          res.json({ friendData: { data: response } });
+        } else {
+          res
+            .status(400)
+            .json({ errors: { get_friends: "You have no friends" } });
+        }
       }
     } else {
-      res.status(400).json({ error: "User doesn't exist" });
+      console.log("??");
+      res.status(400).json({ errors: { get_friends: "User doesn't exist" } });
     }
   });
 });

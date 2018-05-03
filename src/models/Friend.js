@@ -20,10 +20,12 @@ const schema = new mongoose.Schema(
 );
 
 schema.methods.addFriend = function addFriend(requesting, requested) {
-  this.requesting = requesting;
-  this.requested = requested;
+  this.requesting = requesting._id;
+  this.requested = requested._id;
 };
 
 schema.methods.setAccept = function setAccept() {
   this.accepted = true;
 };
+
+export default mongoose.model("Friend", schema);

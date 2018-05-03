@@ -1,5 +1,4 @@
 import express from "express";
-import parseErrors from "../utils/parseErrors";
 import User from "../models/User";
 import Friend from "../models/Friend";
 
@@ -19,11 +18,28 @@ router.post("/add", (req, res) => {
     } else {
       User.findOne({ email: friend }).then(requested => {
         if (!requested) {
-          res.status(400).json({ error: "Could not find user" });
+          res
+            .status(400)
+            .json({ errors: { add_friend: "Could not find user" } });
         } else {
-          const friendship = new Friend(user, friend);
+          Friend.findOne({
+            requesting: requesting._id,
+            requested: requested._id
+          }).then(alreadyFriends => {
+            if (alreadyFriends) {
+              res
+                .status(400)
+                .json({ errors: { add_friend: "You can't add this friend" } });
+            } else {
+              const friendship = new Friend({
+                requesting: requesting._id,
+                requested: requested._id
+              });
+              friendship.save();
+              res.json({ friendData: { message: "Friend request sent!" } });
+            }
+          });
           // to do: push recieved friend request
-          friendship.save();
         }
       });
     }
@@ -50,12 +66,12 @@ router.post("/respond", (req, res) => {
               }
             } else {
               // No user
-              res.status(400).json({ error: "No such user" });
+              res.status(400).json({ errors: { respond: "No such user" } });
             }
           });
         } else {
           // No friend
-          res.status(400).json({ error: "No such friend" });
+          res.status(400).json({ errors: { respond: "No such friend" } });
         }
       });
     }
