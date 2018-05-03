@@ -48,12 +48,16 @@ router.post("/add", (req, res) => {
 
 router.post("/respond", (req, res) => {
   const { user, friend, response } = req.body;
-  Friend.findOne({ requesting: friend }, { requested: user }).then(
-    friendship => {
-      User.findOne({ email: friend.email }).then(theFriend => {
-        if (theFriend) {
-          User.findOne({ email: user.email }).then(theUser => {
-            if (theUser) {
+
+  User.findOne({ email: friend.email })
+    .then(theFriend => {
+      if (theFriend) {
+        User.findOne({ email: user.email }).then(theUser => {
+          if (theUser) {
+            Friend.findOne(
+              { requesting: theFriend._id },
+              { requested: theUser._id }
+            ).then(friendship => {
               if (response) {
                 theUser.addFriend(theFriend);
                 theFriend.addFriend(theUser);
@@ -64,18 +68,20 @@ router.post("/respond", (req, res) => {
                 Friend.findOneAndRemove({ _id: friendship._id });
                 res.json({ data: "Friendship declined" });
               }
-            } else {
-              // No user
-              res.status(400).json({ errors: { respond: "No such user" } });
-            }
-          });
-        } else {
-          // No friend
-          res.status(400).json({ errors: { respond: "No such friend" } });
-        }
-      });
-    }
-  );
+            });
+          } else {
+            // No user
+            res.status(400).json({ errors: { respond: "No such user" } });
+          }
+        });
+      } else {
+        // No friend
+        res.status(400).json({ errors: { respond: "No such friend" } });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 
 export default router;
