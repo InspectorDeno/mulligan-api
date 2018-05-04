@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import uniqueValidator from "mongoose-unique-validator";
+import findByWhatever from "mongoose-find-by-whatever";
 
 // TODO: add uniqueness and email validations to email
 const schema = new mongoose.Schema(
@@ -114,5 +115,6 @@ schema.methods.addFriend = function addFriend(friend) {
 schema.plugin(uniqueValidator, {
   message: "Already taken"
 });
+schema.plugin(findByWhatever, [{ email: /@/ }, { username: "*" }]);
 
 export default mongoose.model("User", schema);

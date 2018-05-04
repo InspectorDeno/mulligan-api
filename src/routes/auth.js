@@ -7,8 +7,9 @@ const router = express.Router();
 
 router.post("/", (req, res) => {
   const { credentials } = req.body;
-  User.findOne({ email: credentials.email })
-    .then(user => {
+  User.findByWhatever(credentials.username_email.toLowerCase())
+    .then(users => {
+      const user = users[0];
       if (user && user.isValidPassword(credentials.password)) {
         res.json({ user: user.toAuthJSON() });
       } else {
@@ -17,9 +18,10 @@ router.post("/", (req, res) => {
           .json({ errors: { global: "Wrong username or password" } });
       }
     })
-    .catch(() =>
-      res.status(400).json({ errors: { global: "Error logging in" } })
-    );
+    .catch(err => {
+      res.status(400).json({ errors: { global: "Error logging in" } });
+      console.error(err);
+    });
 });
 
 router.post("/confirmation", (req, res) => {

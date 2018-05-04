@@ -2946,6 +2946,10 @@ mongodb@3.0.4:
   dependencies:
     mongodb-core "3.0.4"
 
+mongoose-find-by-whatever@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/mongoose-find-by-whatever/-/mongoose-find-by-whatever-0.0.2.tgz#4432c6b95f78f6c4862fef85fff3a0274fd1578f"
+
 mongoose-legacy-pluralize@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz#3ba9f91fa507b5186d399fb40854bff18fb563e4"
