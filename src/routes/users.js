@@ -6,8 +6,8 @@ import { sendConfirmationEmail } from "../mailer";
 const router = express.Router();
 
 router.post("/", (req, res) => {
-  const { email, password } = req.body.user;
-  const user = new User({ email });
+  const { email, username, password, gender } = req.body.user;
+  const user = new User({ email, username, gender });
   user.setPassword(password);
   user.setConfirmationToken();
   user
@@ -42,21 +42,30 @@ router.post("/find", (req, res) => {
 
 router.post("/get_friends", (req, res) => {
   const { user } = req.body;
+  const response = [];
 
   User.findOne({ email: user.email }).then(theUser => {
     if (theUser) {
       if (theUser.friends) {
-        const response = {};
-
-        theUser.friends.forEach(f => {
-          User.findById({ _id: f.id }).then(friend => response.add(friend));
-        });
-        if (response.length > 0) {
-          res.json({ friendData: { data: response } });
+        if (theUser.friends.length > 0) {
+          theUser.friends.forEach(f => {
+            User.findById({ _id: f._id }).then(friend => {
+              const friendObj = {
+                email: friend.email,
+                hcp: friend.hcp
+              };
+              response.push(friendObj);
+              if (response.length === theUser.friends.length) {
+                res.json({ friendData: { data: response } });
+              }
+            });
+          });
         } else {
-          res
-            .status(400)
-            .json({ errors: { get_friends: "You have no friends" } });
+          res.status(400).json({
+            errors: {
+              get_friends: "You have no friends"
+            }
+          });
         }
       }
     } else {

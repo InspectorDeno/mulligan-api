@@ -14,6 +14,15 @@ const schema = new mongoose.Schema(
       index: true,
       unique: true
     },
+    username: {
+      type: String,
+      required: false,
+      unique: true
+    },
+    gender: {
+      type: String,
+      required: true
+    },
     passwordHash: { type: String, required: true },
     hcp: { type: Number, required: true, default: "36.0" },
     confirmed: { type: Boolean, default: false },
@@ -41,13 +50,21 @@ schema.methods.setPassword = function setPassword(password) {
   this.passwordHash = bcrypt.hashSync(password, 10);
 };
 
+schema.methods.changeUsername = function changeUsername(username) {
+  this.username = username;
+};
+
 // Function that will create object that we want to pass down to our client.
 // We don't want to pass down the whole record (password hash etc)
 schema.methods.toAuthJSON = function toAuthJSON() {
   return {
     email: this.email,
+    username: this.username,
+    gender: this.gender,
+    hcp: this.hcp,
     confirmed: this.confirmed,
-    token: this.generateJWT()
+    token: this.generateJWT(),
+    friends: this.friends
   };
 };
 
@@ -80,6 +97,9 @@ schema.methods.generateJWT = function generateJWT() {
   return jwt.sign(
     {
       email: this.email,
+      username: this.username,
+      gender: this.gender,
+      hcp: this.hcp,
       confirmed: this.confirmed
     },
     process.env.JWT_SECRET
@@ -92,7 +112,7 @@ schema.methods.addFriend = function addFriend(friend) {
 };
 
 schema.plugin(uniqueValidator, {
-  message: "There is already an account with this email"
+  message: "Already taken"
 });
 
 export default mongoose.model("User", schema);

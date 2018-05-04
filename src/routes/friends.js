@@ -55,20 +55,27 @@ router.post("/respond", (req, res) => {
         User.findOne({ email: user.email }).then(theUser => {
           if (theUser) {
             Friend.findOne(
-              { requesting: theFriend._id },
-              { requested: theUser._id }
-            ).then(friendship => {
-              if (response) {
-                theUser.addFriend(theFriend);
-                theFriend.addFriend(theUser);
-                friendship.setAccept();
-                res.json({ data: "Friendship approved" });
-              } else {
-                // Declined
-                Friend.findOneAndRemove({ _id: friendship._id });
-                res.json({ data: "Friendship declined" });
-              }
-            });
+              { requesting: theUser._id },
+              { requested: theFriend._id }
+            )
+              .then(friendship => {
+                if (response) {
+                  theUser.addFriend(theFriend);
+                  theFriend.addFriend(theUser);
+                  friendship.setAccept();
+                  theUser.save();
+                  theFriend.save();
+                  friendship.save();
+                  res.json({ data: "Friendship approved" });
+                } else {
+                  // Declined
+                  Friend.findOneAndRemove({ _id: friendship._id });
+                  res.json({ data: "Friendship declined" });
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
           } else {
             // No user
             res.status(400).json({ errors: { respond: "No such user" } });

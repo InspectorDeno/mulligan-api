@@ -5,6 +5,8 @@ import path from "path";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import http from "http";
+import socketIo from "socket.io";
 
 import auth from "./routes/auth";
 import users from "./routes/users";
@@ -13,7 +15,12 @@ import golfclub from "./routes/golfclub";
 import friends from "./routes/friends";
 
 dotenv.config();
+
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+const port = process.env.PORT || 8080;
+
 app.use(bodyParser.json());
 mongoose.connect(process.env.MONGODB_URL);
 
@@ -27,4 +34,20 @@ app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.listen(8080, () => console.log("Running on localhost:8080"));
+// const getApiAndEmit = async socket => {
+//   socket.emit("FromAPI", "Hello there");
+// };
+
+// let interval;
+// io.on("connection", socket => {
+//   const nick = socket.handshake.query.nick;
+//   console.log("New client connected");
+//   console.log(nick);
+//   if (interval) {
+//     clearInterval(interval);
+//   }
+//   interval = setInterval(() => getApiAndEmit(socket), 10000);
+//   socket.on("disconnect", () => console.log("Client disconnected"));
+// });
+
+server.listen(port, () => console.log(`Running on localhost:${port}}`));
