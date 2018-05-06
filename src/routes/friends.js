@@ -5,22 +5,35 @@ import Friend from "../models/Friend";
 const router = express.Router();
 
 router.post("/", (req, res) => {
-  const { email } = req.body.user;
+  const {
+    email
+  } = req.body.user;
   res.json(email);
 });
 
 router.post("/add", (req, res) => {
-  const { user } = req.body;
-  const { friend } = req.body;
-  User.findOne({ email: user.email }).then(requesting => {
+  const {
+    user
+  } = req.body;
+  const {
+    friend
+  } = req.body;
+  User.findOne({
+    username: user.username
+  }).then(requesting => {
     if (!requesting) {
       res.status(400).json();
     } else {
-      User.findOne({ email: friend }).then(requested => {
+      User.findByWhatever(friend).then(requestedObj => {
+        const requested = requestedObj[0];
         if (!requested) {
           res
             .status(400)
-            .json({ errors: { add_friend: "Could not find user" } });
+            .json({
+              errors: {
+                add_friend: "Could not find user"
+              }
+            });
         } else {
           Friend.findOne({
             requesting: requesting._id,
@@ -29,17 +42,25 @@ router.post("/add", (req, res) => {
             if (alreadyFriends) {
               res
                 .status(400)
-                .json({ errors: { add_friend: "You can't add this friend" } });
+                .json({
+                  errors: {
+                    add_friend: "Friend request already sent"
+                  }
+                });
             } else {
               const friendship = new Friend({
                 requesting: requesting._id,
                 requested: requested._id
               });
               friendship.save();
-              res.json({ friendData: { message: "Friend request sent!" } });
+              res.json({
+                add_friend: {
+                  message: "Friend request sent!"
+                }
+              });
+              // TODO: push pending over sockets?
             }
           });
-          // to do: push recieved friend request
         }
       });
     }
@@ -47,17 +68,26 @@ router.post("/add", (req, res) => {
 });
 
 router.post("/respond", (req, res) => {
-  const { user, friend, response } = req.body;
+  const {
+    user,
+    friend,
+    response
+  } = req.body;
 
-  User.findOne({ email: friend.email })
+  User.findOne({
+      email: friend.email
+    })
     .then(theFriend => {
       if (theFriend) {
-        User.findOne({ email: user.email }).then(theUser => {
+        User.findOne({
+          email: user.email
+        }).then(theUser => {
           if (theUser) {
-            Friend.findOne(
-              { requesting: theUser._id },
-              { requested: theFriend._id }
-            )
+            Friend.findOne({
+                requesting: theUser._id
+              }, {
+                requested: theFriend._id
+              })
               .then(friendship => {
                 if (response) {
                   theUser.addFriend(theFriend);
@@ -66,11 +96,17 @@ router.post("/respond", (req, res) => {
                   theUser.save();
                   theFriend.save();
                   friendship.save();
-                  res.json({ data: "Friendship approved" });
+                  res.json({
+                    data: "Friendship approved"
+                  });
                 } else {
                   // Declined
-                  Friend.findOneAndRemove({ _id: friendship._id });
-                  res.json({ data: "Friendship declined" });
+                  Friend.findOneAndRemove({
+                    _id: friendship._id
+                  });
+                  res.json({
+                    data: "Friendship declined"
+                  });
                 }
               })
               .catch(err => {
@@ -78,12 +114,20 @@ router.post("/respond", (req, res) => {
               });
           } else {
             // No user
-            res.status(400).json({ errors: { respond: "No such user" } });
+            res.status(400).json({
+              errors: {
+                respond: "No such user"
+              }
+            });
           }
         });
       } else {
         // No friend
-        res.status(400).json({ errors: { respond: "No such friend" } });
+        res.status(400).json({
+          errors: {
+            respond: "No such friend"
+          }
+        });
       }
     })
     .catch(err => {
