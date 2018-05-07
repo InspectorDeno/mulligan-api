@@ -35,7 +35,6 @@ router.post("/add", (req, res) => {
             { requesting: requesting.email, requested: requested.email }
           ).then(alreadyPending => {
             if (alreadyPending) {
-              console.log("1", alreadyPending);;
               res
                 .status(400)
                 .json({
@@ -48,7 +47,6 @@ router.post("/add", (req, res) => {
               Friend.findOne({ requesting: requested.email, requested: requesting.email })
                 .then(alreadyPending2 => {
                   if (alreadyPending2) {
-                    console.log("2", alreadyPending);
                     res
                       .status(400)
                       .json({
