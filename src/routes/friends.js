@@ -12,20 +12,15 @@ router.post("/", (req, res) => {
 });
 
 router.post("/add", (req, res) => {
-  const {
-    user
-  } = req.body;
-  const {
-    friend
-  } = req.body;
+  const { user } = req.body;
+  const { friend } = req.body;
   User.findOne({
     username: user.username
   }).then(requesting => {
     if (!requesting) {
       res.status(400).json();
     } else {
-      User.findByWhatever(friend).then(requestedObj => {
-        const requested = requestedObj[0];
+      User.findOne({ username: friend }).then(requested => {
         if (!requested) {
           res
             .status(400)
@@ -35,11 +30,12 @@ router.post("/add", (req, res) => {
               }
             });
         } else {
-          Friend.findOne({
-            requesting: requesting._id,
-            requested: requested._id
-          }).then(alreadyFriends => {
-            if (alreadyFriends) {
+          // See if friend request was already sent
+          Friend.findOne(
+            { requesting: requesting.email, requested: requested.email }
+          ).then(alreadyPending => {
+            if (alreadyPending) {
+              console.log("1", alreadyPending);;
               res
                 .status(400)
                 .json({
@@ -48,19 +44,35 @@ router.post("/add", (req, res) => {
                   }
                 });
             } else {
-              const friendship = new Friend({
-                requesting: requesting._id,
-                requested: requested._id
-              });
-              friendship.save();
-              res.json({
-                add_friend: {
-                  message: "Friend request sent!"
-                }
-              });
-              // TODO: push pending over sockets?
+              // See if request is already pending
+              Friend.findOne({ requesting: requested.email, requested: requesting.email })
+                .then(alreadyPending2 => {
+                  if (alreadyPending2) {
+                    console.log("2", alreadyPending);
+                    res
+                      .status(400)
+                      .json({
+                        errors: {
+                          add_friend: "Friend request already received"
+                        }
+                      });
+                  } else {
+                    // Add new pending friendship
+                    const friendship = new Friend({
+                      requesting: requesting.email,
+                      requested: requested.email
+                    });
+                    friendship.save();
+                    res.json({
+                      add_friend: {
+                        message: "Friend request sent!"
+                      }
+                    });
+                  }
+                });
             }
           });
+          // TODO: push pending over sockets?
         }
       });
     }
@@ -68,59 +80,55 @@ router.post("/add", (req, res) => {
 });
 
 router.post("/respond", (req, res) => {
-  const {
-    user,
-    friend,
-    response
-  } = req.body;
+  const { user, friend, response } = req.body;
 
-  User.findOne({
-      email: friend.email
-    })
+  // Find the friend
+  User.findOne({ username: friend })
     .then(theFriend => {
       if (theFriend) {
-        User.findOne({
-          email: user.email
-        }).then(theUser => {
-          if (theUser) {
-            Friend.findOne({
-                requesting: theUser._id
-              }, {
-                requested: theFriend._id
-              })
-              .then(friendship => {
-                if (response) {
-                  theUser.addFriend(theFriend);
-                  theFriend.addFriend(theUser);
-                  friendship.setAccept();
-                  theUser.save();
-                  theFriend.save();
-                  friendship.save();
-                  res.json({
-                    data: "Friendship approved"
-                  });
-                } else {
-                  // Declined
-                  Friend.findOneAndRemove({
-                    _id: friendship._id
-                  });
-                  res.json({
-                    data: "Friendship declined"
-                  });
+        // Find the user
+        User.findOne({ username: user })
+          .then(theUser => {
+            if (theUser) {
+              // Find unaccepted friendship
+              Friend.findOne({ requesting: theFriend.email, requested: theUser.email })
+                .then(friendship => {
+                  // User accepted friend
+
+                  if (response) {
+                    theUser.addFriend(theFriend);
+                    theUser.save();
+                    theFriend.addFriend(theUser);
+                    theFriend.save();
+                    res.json({
+                      respondData: {
+                        message: "Friendship approved"
+                      }
+                    });
+                  } else {
+                    // Declined
+                    res.json({
+                      respondData: {
+                        message: "Friendship declined"
+                      }
+                    });
+                  }
+                  // Removing pending friendship
+                  friendship.remove();
+                })
+                .catch(() => {
+                  res.status(400).json({
+                    errors: { respond: "Not a pending friendship" }
+                  })
                 }
-              })
-              .catch(err => {
-                console.log(err);
+                );
+            } else {
+              // No user
+              res.status(400).json({
+                errors: { respond: "No such user" }
               });
-          } else {
-            // No user
-            res.status(400).json({
-              errors: {
-                respond: "No such user"
-              }
-            });
-          }
-        });
+            }
+          });
       } else {
         // No friend
         res.status(400).json({

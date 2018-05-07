@@ -11,7 +11,7 @@ router.get("/", (req, res) => {
   request
     .get(
       `${
-        process.env.SMHI_API
+      process.env.SMHI_API
       }/category/pmp3g/version/2/geotype/point/lon/15.62157/lat/58.41086/data.json`
     )
     .then(result => {

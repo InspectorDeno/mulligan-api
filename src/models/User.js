@@ -33,7 +33,7 @@ const schema = new mongoose.Schema({
             type: Number,
             required: true,
             default: "36.0"
-        }, 
+        },
         sethcp: {
             type: Boolean,
             default: false
@@ -48,10 +48,10 @@ const schema = new mongoose.Schema({
         default: ""
     },
     friends: [{
-        id: mongoose.Schema.Types.ObjectId
+        email: {
+            type: String
+        }
     }]
-}, {
-    timestamps: true
 });
 
 schema.methods.isValidPassword = function isValidPassword(password) {
@@ -100,15 +100,15 @@ schema.methods.toGeneric = function toGeneric() {
 // This generates the link to attach in the email
 schema.methods.generateResetPasswordLink = function generateResetPasswordLink() {
     return `${
-    process.env.HOST
-  }/reset_password/${this.generateResetPasswordToken()}`;
+        process.env.HOST
+        }/reset_password/${this.generateResetPasswordToken()}`;
 };
 
 // Not so secure method to generate a reset password token that lasts for like, an hour
 schema.methods.generateResetPasswordToken = function generateResetPasswordToken() {
     return jwt.sign({
-            _id: this._id
-        },
+        _id: this._id
+    },
         process.env.JWT_SECRET, {
             expiresIn: "1h"
         }
@@ -123,20 +123,18 @@ schema.methods.setHCP = function setHCP(hcp) {
 // Generates the JSON web token with secretkey for encryption
 schema.methods.generateJWT = function generateJWT() {
     return jwt.sign({
-            email: this.email,
-            username: this.username,
-            gender: this.gender,
-            hcp: this.hcp,
-            confirmed: this.confirmed
-        },
+        email: this.email,
+        username: this.username,
+        gender: this.gender,
+        hcp: this.hcp,
+        confirmed: this.confirmed
+    },
         process.env.JWT_SECRET
     );
 };
 
 schema.methods.addFriend = function addFriend(friend) {
-    const theFriend = {
-        _id: friend._id
-    };
+    const theFriend = { email: friend.email };
     this.friends.push(theFriend);
 };
 
@@ -148,5 +146,6 @@ schema.plugin(findByWhatever, [{
 }, {
     username: "*"
 }]);
+
 
 export default mongoose.model("User", schema);
