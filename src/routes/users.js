@@ -71,7 +71,7 @@ router.post("/get_pending", (req, res) => {
   const { user } = req.body;
   const response = [];
   User.findOne({
-    username: user.username
+    username: user
   }).then(theUser => {
     // Find pending friendships if they exist
     Friend.find({ requested: theUser.email }).then(pending => {
@@ -94,7 +94,7 @@ router.post("/get_pending", (req, res) => {
         })
       } else {
         // No pending friends
-        res.json({});
+        res.json({ pendingData: {} });
       }
     }).catch(() => res.status(400).json({ errors: { get_pending: "Failed to get pending friends" } }));
   });
@@ -105,7 +105,7 @@ router.post("/get_friends", (req, res) => {
   const response = [];
 
   User.findOne({
-    username: user.username
+    username: user
   }).then(theUser => {
     if (theUser) {
       if (theUser.friends.length > 0) {
@@ -125,7 +125,7 @@ router.post("/get_friends", (req, res) => {
         });
       } else {
         // No friends
-        res.json({});
+        res.json({ friendData: {} });
       }
     } else {
       res.status(400).json({

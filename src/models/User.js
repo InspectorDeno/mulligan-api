@@ -93,6 +93,7 @@ schema.methods.toAuthJSON = function toAuthJSON() {
 schema.methods.toGeneric = function toGeneric() {
     return {
         username: this.username,
+        gender: this.gender,
         hcp: this.hcp.value
     }
 }

@@ -100,14 +100,14 @@ router.post("/respond", (req, res) => {
                     theFriend.save();
                     res.json({
                       respondData: {
-                        message: "Friendship approved"
+                        message: "Friend added"
                       }
                     });
                   } else {
                     // Declined
                     res.json({
                       respondData: {
-                        message: "Friendship declined"
+                        message: "Friend declined"
                       }
                     });
                   }
