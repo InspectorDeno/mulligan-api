@@ -1,14 +1,9 @@
 // Model for User
 import mongoose from "mongoose";
 
-// TODO: add uniqueness and email validations to email
 const schema = new mongoose.Schema(
   {
-    club: {
-      type: String,
-      required: true,
-      index: true
-    },
+    club: { type: String, required: true, index: true },
     number: { type: Number, required: true, unique: true },
     index: { type: Number, required: true },
     par: { type: Number, required: true }

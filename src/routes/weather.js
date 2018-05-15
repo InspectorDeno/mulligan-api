@@ -1,18 +1,14 @@
 import express from "express";
 import request from "request-promise";
 
-// import authenticate from "../middlewares/authenticate";
-
 const router = express.Router();
-// router.use(authenticate);
 
 router.get("/", (req, res) => {
   // TODO: Get lon and lat from user
+  // TODO: Use capped collection to store weather data automatically for a certain amount of time
   request
     .get(
-      `${
-      process.env.SMHI_API
-      }/category/pmp3g/version/2/geotype/point/lon/15.62157/lat/58.41086/data.json`
+      `${process.env.SMHI_API}/category/pmp3g/version/2/geotype/point/lon/15.62157/lat/58.41086/data.json`
     )
     .then(result => {
       const data = JSON.parse(result);

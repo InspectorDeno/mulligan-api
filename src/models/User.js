@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import uniqueValidator from "mongoose-unique-validator";
 import findByWhatever from "mongoose-find-by-whatever";
 
-// TODO: add uniqueness and email validations to email
 const schema = new mongoose.Schema({
     email: {
         type: String,
@@ -40,17 +39,35 @@ const schema = new mongoose.Schema({
         }
     },
     confirmed: {
-        type: Boolean,
-        default: false
+        type: Boolean, default: false
     },
     confirmationToken: {
-        type: String,
-        default: ""
+        type: String, default: ""
     },
     friends: [{
-        email: {
-            type: String
-        }
+        email: { type: String }
+    }],
+    scorecards: [{
+        date: { type: String, required: true },
+        players: [{
+            playerName: { type: String, required: true },
+            playerHcp: { type: Number, required: true },
+            playerGender: { type: String, required: true },
+            playerTee: { type: String, required: true },
+        }],
+        golfclub: { type: String, required: true },
+        golfholes: [{
+            number: { type: Number, required: true },
+            index: { type: Number, required: true },
+            par: { type: Number, required: true }
+        }],
+        scores: [{}],
+        weather: [{
+            degrees: { type: Number },
+            windspeed: { type: Number },
+            precipitation: { type: Number },
+            symbol: { type: Number }
+        }],
     }]
 });
 
@@ -138,6 +155,18 @@ schema.methods.addFriend = function addFriend(friend) {
     const theFriend = { email: friend.email };
     this.friends.push(theFriend);
 };
+
+schema.methods.addScorecard = function addScorecard(data) {
+    const theScorecard = {
+        date: data.golfdate,
+        players: data.golfplayers,
+        golfclub: data.golfclub,
+        golfholes: data.golfholes,
+        scores: data.golfscores, // for now
+        weather: [], // for now
+    }
+    this.scorecards.push(theScorecard);
+}
 
 schema.plugin(uniqueValidator, {
     message: "Already taken"
