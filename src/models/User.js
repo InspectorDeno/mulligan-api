@@ -62,12 +62,7 @@ const schema = new mongoose.Schema({
             par: { type: Number, required: true }
         }],
         scores: [{}],
-        weather: [{
-            degrees: { type: Number },
-            windspeed: { type: Number },
-            precipitation: { type: Number },
-            symbol: { type: Number }
-        }],
+        weather: {},
     }]
 });
 
@@ -156,14 +151,14 @@ schema.methods.addFriend = function addFriend(friend) {
     this.friends.push(theFriend);
 };
 
-schema.methods.addScorecard = function addScorecard(data) {
+schema.methods.addScorecard = function addScorecard(data, weatherdata) {
     const theScorecard = {
         date: data.golfdate,
         players: data.golfplayers,
         golfclub: data.golfclub,
         golfholes: data.golfholes,
-        scores: data.golfscores, // for now
-        weather: [], // for now
+        scores: data.golfscores,
+        weather: weatherdata.currently,
     }
     this.scorecards.push(theScorecard);
 }
