@@ -77,11 +77,7 @@ router.post("/get_pending", authenticate, (req, res) => {
           response.push(theOneAsking.toGeneric());
           if (response.length === pending.length) {
             // Respond with list of pending friends
-            res.json({
-              pendingData: {
-                data: response
-              }
-            });
+            res.json({ pendingData: { data: response } });
           }
         }
         );
@@ -104,11 +100,7 @@ router.post("/get_friends", authenticate, (req, res) => {
       }).then(friend => {
         response.push(friend.toGeneric());
         if (response.length === currentUser.friends.length) {
-          res.json({
-            friendData: {
-              data: response
-            }
-          });
+          res.json({ friendData: { data: response } });
         }
       });
     });
