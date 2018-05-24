@@ -1,34 +1,24 @@
 import express from "express";
 import request from "request-promise";
+import moment from "moment";
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
   // TODO: Get lon and lat from user
   // TODO: Use capped collection to store weather data automatically for a certain amount of time
+  const lon = 15.6216; // Linköping
+  const lat = 58.4109;
+  const time = moment(new Date(Date.now())).format("X");
+  console.log(`${process.env.DARK_SKY_API}${process.env.DARK_SKY_KEY}/${lat},${lon},${time}?units=si&exclude=flags`
+  )
   request
     .get(
-      `${process.env.SMHI_API}/category/pmp3g/version/2/geotype/point/lon/15.62157/lat/58.41086/data.json`
+      `${process.env.DARK_SKY_API}${process.env.DARK_SKY_KEY}/${lat},${lon},${time}?units=si&exclude=flags`
     )
     .then(result => {
       const data = JSON.parse(result);
-      res.json({
-        weatherData: data.timeSeries.map(item => ({
-          validTime: item.validTime,
-          degrees: item.parameters.filter(type => type.name === "t")[0]
-            .values[0],
-          windSpeed: item.parameters.filter(type => type.name === "ws")[0]
-            .values[0],
-          windDir: item.parameters.filter(type => type.name === "wd")[0]
-            .values[0],
-          symbol: item.parameters.filter(type => type.name === "Wsymb2")[0]
-            .values[0],
-          precMean: item.parameters.filter(type => type.name === "pmean")[0]
-            .values[0],
-          precCat: item.parameters.filter(type => type.name === "pcat")[0]
-            .values[0]
-        }))
-      });
+      res.json({ weatherData: data });
     })
     .catch(() =>
       res.status(400).json({
