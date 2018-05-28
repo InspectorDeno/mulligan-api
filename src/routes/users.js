@@ -13,7 +13,8 @@ router.post("/", (req, res) => {
 
   user.setPassword(password);
   user.setConfirmationToken();
-  user.save()
+  user
+    .save()
     .then(newUser => {
       sendConfirmationEmail(newUser);
       res.json({
@@ -23,15 +24,15 @@ router.post("/", (req, res) => {
     .catch(err => {
       res.status(400).json({
         errors: parseErrors(err.errors)
-      })
+      });
     });
 });
 
 router.post("/sethcp", authenticate, (req, res) => {
   const currentUser = req.currentUser;
   const { hcp } = req.body;
-  currentUser.setHCP(hcp.value);
-  currentUser.save()
+  currentUser.setHCP(hcp);
+  currentUser.save();
   res.json({ user: currentUser.toAuthJSON() });
 });
 
@@ -68,25 +69,39 @@ router.post("/get_pending", authenticate, (req, res) => {
 
   const response = [];
   // Find pending friendships if they exist
-  Friend.find({ requested: currentUser.email }).then(pending => {
-    if (pending.length > 0) {
-      pending.forEach(pend => {
-        // Find the friend 
-        User.findOne({ email: pend.requesting }).then(theOneAsking => {
-          // Add to response
-          response.push(theOneAsking.toGeneric());
-          if (response.length === pending.length) {
-            // Respond with list of pending friends
-            res.json({ pendingData: { data: response } });
-          }
-        }
-        );
-      })
-    } else {
-      // No pending friends
-      res.json({ pendingData: {} });
-    }
-  }).catch(() => res.status(400).json({ errors: { get_pending: "Failed to get pending friends" } }));
+  Friend.find({ requested: currentUser.email })
+    .then(pending => {
+      if (pending.length > 0) {
+        pending.forEach(pend => {
+          // Find the friend
+          User.findOne({ email: pend.requesting }).then(theOneAsking => {
+            // Add to response
+            response.push(theOneAsking.toGeneric());
+            if (response.length === pending.length) {
+              // Respond with list of pending friends
+              res.json({ pendingData: { data: response } });
+            }
+          });
+        });
+      } else {
+        // No pending friends
+        res.json({ pendingData: {} });
+      }
+    })
+    .catch(() =>
+      res
+        .status(400)
+        .json({ errors: { get_pending: "Failed to get pending friends" } })
+    );
+});
+
+router.post("/change_password", authenticate, (req, res) => {
+  const currentUser = req.currentUser;
+  const { newPassword } = req.body;
+
+  currentUser.setPassword(newPassword.password);
+  currentUser.save();
+  res.json({});
 });
 
 router.post("/get_friends", authenticate, (req, res) => {
@@ -109,6 +124,5 @@ router.post("/get_friends", authenticate, (req, res) => {
     res.json({ friendData: {} });
   }
 });
-
 
 export default router;
