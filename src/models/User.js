@@ -108,8 +108,7 @@ schema.methods.toAuthJSON = function toAuthJSON() {
     gender: this.gender,
     hcp: this.hcp,
     confirmed: this.confirmed,
-    token: this.generateJWT(),
-    friends: this.friends
+    token: this.generateJWT()
   };
 };
 
