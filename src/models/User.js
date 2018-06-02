@@ -124,7 +124,7 @@ schema.methods.toGeneric = function toGeneric() {
 schema.methods.generateResetPasswordLink = function generateResetPasswordLink() {
   return `${
     process.env.HOST
-  }/reset_password/${this.generateResetPasswordToken()}`;
+    }/reset_password/${this.generateResetPasswordToken()}`;
 };
 
 // Not so secure method to generate a reset password token that lasts for like, an hour

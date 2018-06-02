@@ -5,8 +5,6 @@ import moment from "moment";
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  // TODO: Get lon and lat from user
-  // TODO: Use capped collection to store weather data automatically for a certain amount of time
   const lon = 15.6216; // Linköping
   const lat = 58.4109;
   const time = moment(new Date(Date.now())).format("X");

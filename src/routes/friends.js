@@ -59,7 +59,6 @@ router.post("/add", (req, res) => {
             });
         }
       });
-      // TODO: push pending over sockets?
     }
   });
 });
