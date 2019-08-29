@@ -36,6 +36,6 @@
     "nodemailer": "^4.6.3",
     "request-promise": "^4.2.2",
     "socket.io": "^2.1.0",
-    "yarn": "^1.5.1"
+    "yarn": "^1.17.3"
   }
 }
